@@ -11,7 +11,7 @@ const (
 	DefaultTrigger = "dracarys"
 )
 
-type Options func(opts *options) error
+type Options func(opts *options)
 
 type options struct {
 	token   string
@@ -24,34 +24,26 @@ type options struct {
 
 // TODO: This should probably not be optional
 func WithToken(token string) Options {
-	return func(opts *options) error {
+	return func(opts *options) {
 		opts.token = token
-
-		return nil
 	}
 }
 
 func WithTimeout(timeout time.Duration) Options {
-	return func(opts *options) error {
+	return func(opts *options) {
 		opts.timeout = timeout
-
-		return nil
 	}
 }
 
 func WithLogger(logger *log.Logger) Options {
-	return func(opts *options) error {
+	return func(opts *options) {
 		opts.logger = logger
-
-		return nil
 	}
 }
 
 func WithTrigger(trigger string) Options {
-	return func(opts *options) error {
+	return func(opts *options) {
 		opts.trigger = trigger
-
-		return nil
 	}
 }
 

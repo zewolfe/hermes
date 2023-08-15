@@ -2,25 +2,20 @@ package orchestrator
 
 import (
 	"fmt"
-	"sync"
 	"time"
-
-	"github.com/zewolfe/hermes/internal/log"
 )
 
 type Orchestrator struct {
-	queueMux         sync.RWMutex
-	store            store
-	log              *log.Logger
-	evictionInterval time.Duration
+	store store
+	options
 }
 
-func New() *Orchestrator {
+func New(opts ...Options) *Orchestrator {
+	options := applyOptions(opts...)
+
 	o := &Orchestrator{
-		queueMux:         sync.RWMutex{},
-		store:            newStore(),
-		log:              log.NewStdoutLogger(),
-		evictionInterval: time.Minute * 5, //TODO: pass this as an option
+		store:   newStore(options.ttl),
+		options: options,
 	}
 
 	o.startGarbageCollector()
@@ -29,9 +24,6 @@ func New() *Orchestrator {
 }
 
 func (o *Orchestrator) Subscribe(id string) <-chan interface{} {
-	o.queueMux.Lock()
-	defer o.queueMux.Unlock()
-
 	ch := make(chan interface{}, 1)
 
 	o.log.Info("Subscriber added", "subscriber", id)
@@ -42,10 +34,8 @@ func (o *Orchestrator) Subscribe(id string) <-chan interface{} {
 
 func (o *Orchestrator) Publish(id string, msg interface{}) {
 	go func() {
-		o.queueMux.RLock()
-		defer o.queueMux.RUnlock()
-
 		sub, err := o.store.Get(id)
+
 		if err != nil {
 			//TODO: Handle messages that aren't subscribed for
 			//TODO: handle the error
@@ -54,6 +44,7 @@ func (o *Orchestrator) Publish(id string, msg interface{}) {
 
 		sub.ch <- msg
 	}()
+
 }
 
 func (o *Orchestrator) startGarbageCollector() {

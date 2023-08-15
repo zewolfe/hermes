@@ -27,10 +27,10 @@ type store interface {
 	CleanUp()
 }
 
-func newStore() store {
+func newStore(ttl time.Duration) store {
 	return &lockedMap{
 		data: make(map[string]item),
-		ttl:  time.Minute * 5, //TODO: Pass this as an option
+		ttl:  ttl,
 	}
 }
 
@@ -88,6 +88,9 @@ func (l *lockedMap) CleanUp() {
 		hasExpired := time.Now().After(item.expiration)
 
 		if hasExpired {
+			item := l.data[key]
+
+			close(item.ch)
 			delete(l.data, key)
 		}
 	}

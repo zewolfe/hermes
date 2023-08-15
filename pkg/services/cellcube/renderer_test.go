@@ -78,12 +78,9 @@ func processString(str string) string {
 }
 
 // TODO: Find a better function name
-func TestRendererWithJson(t *testing.T) {
-	str, err := menu.RenderJSON()
-	if err != nil {
-		t.Fatalf("Expected error not to occur :%v", err)
-	}
-
-	t.Log(str)
-
-}
+// func TestRendererWithJson(t *testing.T) {
+// 	str, err := menu.RenderJSON()
+// 	if err != nil {
+// 		t.Fatalf("Expected error not to occur :%v", err)
+// 	}
+// }

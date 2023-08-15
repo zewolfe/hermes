@@ -16,3 +16,8 @@ func NewStdoutLogger() *Logger {
 
 	return &stdLogger
 }
+
+func NewNoopLogger() *Logger {
+	l := logr.Discard()
+	return &l
+}
